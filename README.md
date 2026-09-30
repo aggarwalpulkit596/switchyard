@@ -58,10 +58,14 @@ backlog/          Issue sources, synced to GitHub by scripts/bootstrap-github.sh
 Requires Node 22.12+ and pnpm (pinned via `packageManager`; `corepack enable` installs it).
 
 ```
+cp .env.example .env
+docker compose up -d --wait
 pnpm install
 pnpm typecheck && pnpm lint && pnpm test
 pnpm format:check
 ```
+
+See [local development](docs/engineering/local-dev.md) for details.
 
 ## Honesty clause
 
