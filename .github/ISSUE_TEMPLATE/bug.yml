@@ -1,0 +1,15 @@
+name: Bug
+description: Something behaves differently from the docs
+labels: ["type:bug"]
+body:
+  - type: textarea
+    id: expected
+    attributes: { label: Expected (cite the doc) }
+    validations: { required: true }
+  - type: textarea
+    id: actual
+    attributes: { label: Actual, description: Include IDs, logs (redacted), timestamps. }
+    validations: { required: true }
+  - type: textarea
+    id: repro
+    attributes: { label: Reproduction }
