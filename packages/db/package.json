@@ -1,0 +1,14 @@
+{
+  "name": "@switchyard/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Schema, SQL migrations, typed queries",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests",
+    "db:migrate": "node -e \"console.log('db:migrate: no migrations yet (schema lands in #6)')\""
+  }
+}

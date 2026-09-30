@@ -1,0 +1,13 @@
+{
+  "name": "@switchyard/domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure state machines, policy evaluation, plan hashing",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests"
+  }
+}

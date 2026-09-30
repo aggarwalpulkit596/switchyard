@@ -1,0 +1,13 @@
+{
+  "name": "@switchyard/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "React UI: release review, live progress, evidence",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests"
+  }
+}

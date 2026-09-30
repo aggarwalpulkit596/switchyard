@@ -1,0 +1,13 @@
+{
+  "name": "@switchyard/probe-runner",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Functional probes, runs with limited credentials",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests"
+  }
+}
