@@ -53,6 +53,16 @@ docs/             Design, ADRs, spikes, plans, weekly updates
 backlog/          Issue sources, synced to GitHub by scripts/bootstrap-github.sh
 ```
 
+## Development
+
+Requires Node 22.12+ and pnpm (pinned via `packageManager`; `corepack enable` installs it).
+
+```
+pnpm install
+pnpm typecheck && pnpm lint && pnpm test
+pnpm format:check
+```
+
 ## Honesty clause
 
 Switchyard applies **operational guardrails**. It is not a statistical safety engine. "Thresholds passed" does not mean "proven safe". Turning a flag off does not undo database writes, migrations, emails or payments. The UI and docs say so.

@@ -1,0 +1,4 @@
+# Docs and GitHub templates are hand-formatted; Prettier covers code and config.
+pnpm-lock.yaml
+**/*.md
+.github/

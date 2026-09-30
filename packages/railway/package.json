@@ -1,0 +1,13 @@
+{
+  "name": "@switchyard/railway",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Railway GraphQL adapter plus flag adapter",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests"
+  }
+}
