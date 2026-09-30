@@ -9,3 +9,4 @@
 | Plan | `plan/` | Milestones or priorities change |
 | Engineering | `engineering/` | Process or conventions change |
 | Updates | `updates/` | Weekly (async status) |
+| Learning | `learning/` | Every issue: study notes (read, understand, decide, execute) and glossary |

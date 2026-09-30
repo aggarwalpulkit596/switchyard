@@ -7,6 +7,7 @@ This project is run the way a small remote engineering team runs work: written f
 1. Read `README.md`, `docs/design/rfc-0001-switchyard.md` and the ADRs relevant to the area you're touching.
 2. Find the GitHub issue for the task. If there isn't one, stop and propose one using the matching template in `.github/ISSUE_TEMPLATE/`.
 3. Restate the acceptance criteria and write a short plan before editing code.
+4. Explain the concepts the issue depends on and the options for any decision before implementing. This project is a study as much as a build; see `docs/learning/README.md`.
 
 ## Workflow per issue
 
@@ -38,6 +39,7 @@ This project is run the way a small remote engineering team runs work: written f
 - [ ] Docs updated: RFC, data model, state machines or failure modes if behavior changed.
 - [ ] ADR added if a decision was made.
 - [ ] `CHANGELOG.md` updated under `Unreleased`.
+- [ ] Study note `docs/learning/NNN-slug.md` written (read, understand, decide, execute, including what broke) and new terms added to the glossary.
 
 ## Communication
 

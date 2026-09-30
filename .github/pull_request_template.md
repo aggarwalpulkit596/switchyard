@@ -19,3 +19,4 @@ Closes #
 - [ ] RFC / data model / state machines / failure modes updated, or N/A
 - [ ] ADR added, or N/A
 - [ ] CHANGELOG updated
+- [ ] Study note in `docs/learning/` written, glossary updated
