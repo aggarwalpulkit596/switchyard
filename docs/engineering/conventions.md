@@ -32,6 +32,6 @@
 
 ## Environments
 - `local`: docker compose (Postgres, Temporal dev server). See [local-dev.md](local-dev.md).
-- `controller` Railway project: web, api, worker, Postgres, Temporal (if self-hosted).
+- `controller` Railway project: web, api, worker, Postgres. Temporal runs in Temporal Cloud (ADR-0009).
 - `demo-orders` Railway project: the supervised target.
 - `sy-reh-*` Railway projects: ephemeral, owned by Switchyard, never touched by hand.

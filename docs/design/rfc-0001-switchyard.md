@@ -26,14 +26,14 @@ See `../product/brief.md`.
 |---|---|---|
 | Web | React (Next.js App Router) | Release review, live progress via SSE, evidence views |
 | API | TypeScript GraphQL (Yoga + Pothos) | Typed schema, explicit mutations, authn on every mutation |
-| Orchestration | Temporal (TS SDK) workers | Durable waits for deployments, approvals, windows, cleanup |
+| Orchestration | Temporal (TS SDK) workers, Temporal Cloud | Durable waits for deployments, approvals, windows, cleanup |
 | Persistence | PostgreSQL | Controller state; relational integrity is the main defense |
 | Railway integration | `packages/railway` adapter | GraphQL API; separate flag adapter (flags are Priority Boarding) ⏳ |
 | Telemetry | App emits exposure and outcome events → Postgres | ClickHouse only if measured volume warrants it |
 | Probes | `apps/probe-runner` in the rehearsal project | Limited credentials; emits check results |
 | Live updates | Server-sent events | Workflow progress and decisions |
 
-Deployment: the controller (web, api, worker, Postgres, Temporal) lives in its own Railway project. Targets and rehearsals live in other projects.
+Deployment: the controller (web, api, worker, Postgres) lives in its own Railway project and uses a Temporal Cloud namespace (ADR-0009). Targets and rehearsals live in other projects.
 
 ## 5. Key protocols
 
