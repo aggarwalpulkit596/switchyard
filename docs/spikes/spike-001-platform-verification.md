@@ -13,7 +13,7 @@
 | Q5 | Workspace limits on project count and concurrent deployments on the demo plan? | | Docs plus test | Serialize rehearsals | |
 | Q6 | Flag management via the API or SDK: create/update/delete a flag and rules with a project token; read rules back with IDs? | B for M3 | Script round-trip | CLI wrapper (`railway flag`) inside the worker; or drop activation and ship rehearsal-only | |
 | Q7 | Flag SDK refresh interval and behavior under network loss (measured) | | Timed measurement | Longer propagation windows in policy | |
-| Q8 | Temporal hosting: Temporal Cloud free tier vs self-hosted on Railway (setup time, cost) | | Decision note | — | |
+| Q8 | Temporal hosting: Temporal Cloud free tier vs self-hosted on Railway (setup time, cost) | | Decision note | — | ✅ Temporal Cloud for the deployed controller; dev server locally, test environment in CI. Cloud: $150 credits / 90 days, then $50 per million actions (pricing fetched 2026-10-01). Self-host setup time was judged, not measured. See ADR-0009 (#4) |
 | Q9 | Webhook custom-header auth works; payload shape for deployment events, including `isEphemeral` | | Captured payloads (redacted) | Polling only | |
 | Q10 | Can a rehearsal Postgres be seeded from fixtures via a pre-deploy command or a probe-runner job? | | Script | Seed from probe-runner over private networking | |
 | Q11 | Rate limits on the public API (documented or observed) | | Docs plus observed headers | Adapter-level token bucket | |

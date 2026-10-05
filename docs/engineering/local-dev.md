@@ -48,6 +48,7 @@ docker compose exec temporal temporal workflow list --address localhost:7233
 |---|---|---|
 | `DATABASE_URL` | Migrations, API, worker, DB tests | The default matches `compose.yaml` |
 | `TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE` | Worker, API | The defaults match `compose.yaml` |
+| `TEMPORAL_API_KEY` | Worker, API when deployed | Empty locally. Temporal Cloud API key in Railway variables (ADR-0009) |
 | `RAILWAY_API_TOKEN`, `RAILWAY_WORKSPACE_ID` | Spikes, live adapter tests (`LIVE_RAILWAY=1`) | Must be scoped to the **demo workspace only**. Unit tests never need them |
 | `WEBHOOK_SHARED_SECRET` | Webhook receiver (M2) | Random value, for example `openssl rand -hex 32` |
 
