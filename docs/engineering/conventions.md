@@ -31,7 +31,7 @@
 - Diagrams are Mermaid in markdown so they're reviewable in diffs.
 
 ## Environments
-- `local`: docker compose (Postgres, Temporal dev server).
+- `local`: docker compose (Postgres, Temporal dev server). See [local-dev.md](local-dev.md).
 - `controller` Railway project: web, api, worker, Postgres, Temporal (if self-hosted).
 - `demo-orders` Railway project: the supervised target.
 - `sy-reh-*` Railway projects: ephemeral, owned by Switchyard, never touched by hand.
