@@ -1,5 +1,5 @@
--- Immutability is enforced by triggers, not grants (ADR-0014): grants do not bind the table
--- owner, and the controller connects as the owner on Railway. Every rejection raises SQLSTATE
+-- Immutability is enforced by triggers, not grants (ADR-0014): the controller connects as the
+-- tables' owner, which can re-grant itself any privilege, and superusers bypass privileges. Every rejection raises SQLSTATE
 -- 23000 with the constraint name set, so callers handle it like any other constraint violation.
 
 -- Facts that are never updated or deleted: candidates, audit_events.
