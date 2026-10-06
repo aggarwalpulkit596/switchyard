@@ -6,7 +6,12 @@
 - **Related:** #6, data-model.md (principles 2 and 5), ADR-0012
 
 ## Context
-The data model said candidates and decisions have "no UPDATE grant" and audit events are append-only. Postgres privileges don't apply to a table's owner or to superusers. On Railway the controller connects with the database's default credentials, which own the tables. A grant-only rule would therefore enforce nothing in production, while still looking enforced on paper.
+The data model said candidates and decisions have "no UPDATE grant" and audit events are append-only. Privileges are weak protection for us, as tested on Postgres 16 on 2026-10-06:
+
+- A table's owner *can* revoke `UPDATE` from itself, and is then refused. But the owner can grant it straight back, so the rule is one statement away from not existing.
+- A superuser bypasses privilege checks entirely: an `UPDATE` succeeded after `REVOKE ALL`.
+
+The controller runs migrations and queries with the same credentials, so it owns the tables. Locally and in CI those credentials are a superuser (`rolsuper = t`), and managed Postgres defaults are commonly the same. A grant-only rule would enforce little or nothing while still looking enforced on paper.
 
 ## Decision
 Immutability is enforced by `BEFORE` triggers that raise an error, defined in a custom migration (`packages/db/migrations/0001_immutability.sql`):

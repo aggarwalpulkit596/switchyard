@@ -7,7 +7,7 @@ Status: Draft v0.1. The M1 subset is marked **[M1]**; the rest lands in later mi
 2. **Facts are immutable, state is explicit.** Candidates, sealed evidence, decisions and audit events are never updated. Lifecycle rows carry a `state` plus a `revision` integer for optimistic concurrency.
 3. **External reality is recorded, not assumed.** `operation_intents` and `resources` capture what was attempted and what exists.
 4. **Uniqueness enforces invariants.** Wherever possible, invariants are unique or partial-unique indexes, not application checks.
-5. **Immutability is enforced by triggers**, not grants (ADR-0014). Grants don't bind the table owner, and the controller connects as the owner.
+5. **Immutability is enforced by triggers**, not grants (ADR-0014). The controller connects as the tables' owner, which can re-grant itself any privilege, and superusers bypass privileges entirely.
 
 Conventions in the M1 schema (`packages/db/src/schema.ts`):
 - Every table has `workspace_id` and `created_at timestamptz NOT NULL DEFAULT now()`. Parent tables carry `UNIQUE (workspace_id, id)` so children can use composite foreign keys. The ERD omits `created_at`.
