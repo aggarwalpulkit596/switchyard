@@ -32,4 +32,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm db:migrate
+      - name: Migrations match the schema
+        run: |
+          pnpm --filter @switchyard/db exec drizzle-kit generate
+          test -z "$(git status --porcelain packages/db/migrations)" || { git status --porcelain packages/db/migrations; echo "Schema changed without a committed migration. Run pnpm --filter @switchyard/db db:generate."; exit 1; }
       - run: pnpm test
