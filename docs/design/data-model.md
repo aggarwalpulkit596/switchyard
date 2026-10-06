@@ -7,6 +7,12 @@ Status: Draft v0.1. The M1 subset is marked **[M1]**; the rest lands in later mi
 2. **Facts are immutable, state is explicit.** Candidates, sealed evidence, decisions and audit events are never updated. Lifecycle rows carry a `state` plus a `revision` integer for optimistic concurrency.
 3. **External reality is recorded, not assumed.** `operation_intents` and `resources` capture what was attempted and what exists.
 4. **Uniqueness enforces invariants.** Wherever possible, invariants are unique or partial-unique indexes, not application checks.
+5. **Immutability is enforced by triggers**, not grants (ADR-0014). Grants don't bind the table owner, and the controller connects as the owner.
+
+Conventions in the M1 schema (`packages/db/src/schema.ts`):
+- Every table has `workspace_id` and `created_at timestamptz NOT NULL DEFAULT now()`. Parent tables carry `UNIQUE (workspace_id, id)` so children can use composite foreign keys. The ERD omits `created_at`.
+- State columns are `text` with a `CHECK` listing the allowed states. A Postgres enum can't drop a value.
+- Constraints have explicit names; violations are handled by name.
 
 ## ERD
 
@@ -61,6 +67,7 @@ erDiagram
   }
   rehearsals {
     uuid id PK
+    uuid workspace_id FK
     uuid release_id FK
     int attempt
     text fixture_version
@@ -71,6 +78,7 @@ erDiagram
   }
   check_runs {
     uuid id PK
+    uuid workspace_id FK
     uuid rehearsal_id FK
     text check_id
     text check_version
@@ -82,6 +90,7 @@ erDiagram
   }
   evidence_bundles {
     uuid id PK
+    uuid workspace_id FK
     uuid rehearsal_id FK
     jsonb manifest
     text content_hash
@@ -90,6 +99,7 @@ erDiagram
   }
   approvals {
     uuid id PK
+    uuid workspace_id FK
     uuid release_id FK
     uuid evidence_bundle_id FK
     jsonb plan_manifest
@@ -147,6 +157,7 @@ erDiagram
   }
   resources {
     uuid id PK
+    uuid workspace_id FK
     uuid intent_id FK
     uuid rehearsal_id FK
     text kind
@@ -156,6 +167,7 @@ erDiagram
   }
   cleanup_runs {
     uuid id PK
+    uuid workspace_id FK
     uuid rehearsal_id FK
     text state
     int retries
@@ -187,22 +199,23 @@ erDiagram
 
 | Table | Constraint / index | Invariant it enforces |
 |---|---|---|
+| All [M1] tables | Composite FK `(workspace_id, <parent>_id)` → parent `(workspace_id, id)` | No cross-workspace references |
 | `targets` [M1] | `UNIQUE (railway_project_id, railway_environment_id, railway_service_id)` | One target per external service |
-| `candidates` [M1] | `UNIQUE (registry_repository, image_digest, platform)`; no UPDATE grant | Artifact identity is immutable |
-| `releases` [M1] | `UNIQUE (target_id) WHERE terminal_at IS NULL` | One active release per target |
+| `candidates` [M1] | `UNIQUE (registry_repository, image_digest, platform)`; `CHECK` digest is `sha256:` + 64 hex; trigger rejects UPDATE, DELETE and TRUNCATE | Artifact identity is immutable |
+| `releases` [M1] | `UNIQUE (target_id) WHERE terminal_at IS NULL`; `CHECK` `terminal_at` is set exactly when the state is terminal (`completed`, `recovery_verified`, `needs_attention`) | One active release per target, and the index can't be bypassed |
 | `rehearsals` [M1] | `UNIQUE (release_id, attempt)`; `UNIQUE (railway_project_id) WHERE railway_project_id IS NOT NULL` | Attempts are ordered; ephemeral project owned once |
-| `check_runs` [M1] | `UNIQUE (rehearsal_id, check_id, attempt)` | Retries are explicit, not overwrites |
-| `evidence_bundles` [M1] | `UNIQUE (rehearsal_id)`; trigger blocks UPDATE when `sealed_at IS NOT NULL` | Sealed evidence is immutable |
-| `approvals` [M1] | `INDEX (release_id, created_at)`; rows are never deleted | Approval history preserved |
+| `check_runs` [M1] | `UNIQUE (rehearsal_id, check_id, attempt)`; `CHECK` result is set exactly when `finished_at` is | Retries are explicit, not overwrites |
+| `evidence_bundles` [M1] | `UNIQUE (rehearsal_id)`; `CHECK` `coverage_gaps` is a JSON array; trigger blocks UPDATE and DELETE when `sealed_at IS NOT NULL`, and TRUNCATE | Sealed evidence is immutable; gaps always stated |
+| `approvals` [M1] | `INDEX (release_id, created_at)`; trigger rejects DELETE and TRUNCATE, and any UPDATE except a one-time revocation (`revoked_at` + `revoked_reason`) | Approval history preserved |
 | `deployment_attempts` | `UNIQUE (release_id, attempt)` | Dark deploy retries are explicit |
 | `activation_steps` | `UNIQUE (release_id, sequence)` | Exposure steps ordered |
 | `observation_windows` | `UNIQUE (release_id, phase, starts_at)`; `INDEX (release_id, starts_at)` | No overlapping duplicate windows |
-| `decisions` | Append-only (no UPDATE or DELETE grant) | Explanations cannot be rewritten |
+| `decisions` | Append-only (trigger, ADR-0014) | Explanations cannot be rewritten |
 | `operation_intents` [M1] | `UNIQUE (workspace_id, logical_key)` | Idempotent intent creation |
 | `resources` [M1] | `UNIQUE (provider_id) WHERE provider_id IS NOT NULL`; `UNIQUE (ownership_name)` | No double-owned provider resource |
-| `cleanup_runs` [M1] | `UNIQUE (rehearsal_id) WHERE state NOT IN ('verified_gone','abandoned')` | One active cleanup per rehearsal |
+| `cleanup_runs` [M1] | `UNIQUE (rehearsal_id) WHERE state <> 'verified_gone'` | One active cleanup per rehearsal; `needs_attention` stays active so leftovers are never forgotten (G4) |
 | `webhook_inbox` | `UNIQUE (payload_hash)`; `INDEX (processing_status, received_at)`; 30-day retention | Duplicate deliveries deduplicated |
-| `audit_events` [M1] | Append-only; `INDEX (release_id, occurred_at)` | Tamper-evident history |
+| `audit_events` [M1] | Trigger rejects UPDATE, DELETE and TRUNCATE; `INDEX (release_id, occurred_at)` | Tamper-evident history |
 
 ## Canonical hashes
 - `evidence_bundles.content_hash` = SHA-256 over the RFC 8785 canonical JSON of the manifest (check results, fixture version, config fingerprint, candidate digest, coverage gaps).
@@ -212,3 +225,6 @@ erDiagram
 ## Open points
 - Store raw probe artifacts (logs, HAR files) in a Railway bucket and reference them via `artifact_ref`, or inline them? Default: bucket plus hash.
 - Retention for `observation_windows.metric_summaries` once telemetry volume is measured.
+- `webhook_inbox` has no `workspace_id` yet; add it in M2 (principle 1).
+- Policy versions are stored as text on releases and approvals; a `policies` table lands with M4.
+- The resource janitor finds TTL breaches by joining `resources` to `rehearsals.ttl_expires_at`; no copied TTL column.

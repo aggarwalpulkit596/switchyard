@@ -40,6 +40,12 @@ docker compose exec postgres psql -U switchyard -d switchyard
 docker compose exec temporal temporal workflow list --address localhost:7233
 ```
 
+## Database tests
+
+`pnpm test` runs the `@switchyard/db` constraint tests against a real Postgres. They need `DATABASE_URL` (the default in `.env.example`) and compose Postgres running. Each run creates a throwaway database `sy_test_<pid>_<time>`, applies the migrations, runs every test in a rolled-back transaction, and removes the database at the end. Your `switchyard` database is not touched.
+
+After changing `packages/db/src/schema.ts`, run `pnpm --filter @switchyard/db db:generate` and commit the new migration. CI fails if the schema and the committed migrations disagree.
+
 ## Environment variables
 
 `.env.example` documents every variable. Copy it to `.env`, which is gitignored.
